@@ -2,9 +2,9 @@
 username = ""
 password = ""
 
-# Credenziali invio mail di notifica
+# Credenziali SMTP per notifica
 smtp_username = ""
 smtp_psw = ""
 smtp_server = ""
-smtp_tomail = ["Utente <email@email.it>", "Utente2 <email2@email.it>"]
-smtp_from = "SPREA Automatic Scanner <email@email.it>"
+smtp_toaddrs = ["User1 <user1@example.it", "User2 <user2@example.it"]
+smtp_from = "SPREA Automatic Scanner <notify@example.it>"

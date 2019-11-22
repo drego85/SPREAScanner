@@ -65,8 +65,6 @@ def save_hash_analizzati(hash):
 
 def send_email(pdfurl):
     try:
-        toaddrs = Config.smtp_tomail
-        fromaddr = Config.smtp_from
         username = Config.smtp_username
         password = Config.smtp_psw
         smtpserver = smtplib.SMTP(Config.smtp_server, 587)
@@ -75,8 +73,8 @@ def send_email(pdfurl):
         # smtpserver.ehlo() # extra characters to permit edit
         smtpserver.login(username, password)
 
-        header = "From: " + fromaddr + "\r\n"
-        header += "To: " + ", ".join(toaddrs) + "\r\n"
+        header = "From: " + Config.smtp_username + "\r\n"
+        header += "To: " + ", ".join(Config.smtp_toaddrs) + "\r\n"
         header += "Subject: SPREA Scanner Nuova Rivista Individuata \r\n"
         header += "Date: " + datetime.utcnow().strftime("%a, %d %b %Y %H:%M:%S -0000") + "\r\n\r\n"
 
@@ -84,7 +82,7 @@ def send_email(pdfurl):
         msg = msg + "Download PDF: " + pdfurl
         msg = msg + "\n\n"
 
-        smtpserver.sendmail(fromaddr, toaddrs, msg)
+        smtpserver.sendmail(Config.smtp_username, Config.smtp_toaddrs, msg.encode("utf-8"))
 
         smtpserver.quit()
     except Exception as e:
@@ -104,23 +102,22 @@ def main():
     url2 = "https://sprea.it/login"
     usersprea = {"user": Config.username, "password": Config.password}
 
-    session.post(url2, data=usersprea, headers=headerdesktop, timeout=timeoutconnection, verify=False)
+    session.post(url2, data=usersprea, headers=headerdesktop, timeout=timeoutconnection)
     cookie = session.cookies.get_dict()
 
     # Accedo alla pagina degli Abbonamenti Digitalia acquistati dall'utente
     url3 = "https://sprea.it/digitali"
-    page = requests.get(url3, cookies=cookie, headers=headerdesktop, timeout=timeoutconnection, verify=False)
+    page = requests.get(url3, cookies=cookie, headers=headerdesktop, timeout=timeoutconnection)
     soup = BeautifulSoup(page.text, "html.parser")
 
-    for div in soup.find_all("div", attrs={"class": "col-lg-2 col-md-4 col-xs-6"}):
+    for div in soup.find_all("div", attrs={"class": "col-lg-3 col-md-4 col-xs-6"}):
         for link in div.find_all("a"):
             if "digitali" in link.get("href"):
                 abbonamentiList.append("https://sprea.it" + link.get("href"))
 
     # Per ogni abbonamento rilevato identificato i numeri disponibili e il nome del file PDF
     for urlabbonamento in abbonamentiList:
-        page = requests.get(urlabbonamento, cookies=cookie, headers=headerdesktop, timeout=timeoutconnection,
-                            verify=False)
+        page = requests.get(urlabbonamento, cookies=cookie, headers=headerdesktop, timeout=timeoutconnection)
         soup = BeautifulSoup(page.text, "html.parser")
 
         for div in soup.find_all("div", attrs={"class": "col-lg-2 col-md-4 col-xs-6"}):
@@ -144,4 +141,5 @@ def main():
             save_hash_analizzati(pdfhash)
 
 
-main()
+if __name__ == "__main__":
+    main()
