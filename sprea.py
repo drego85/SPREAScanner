@@ -120,7 +120,7 @@ def main():
         page = requests.get(urlabbonamento, cookies=cookie, headers=headerdesktop, timeout=timeoutconnection)
         soup = BeautifulSoup(page.text, "html.parser")
 
-        for div in soup.find_all("div", attrs={"class": "col-lg-2 col-md-4 col-xs-6"}):
+        for div in soup.find_all("div", attrs={"class": ["col-md-4", "col-xs-6"]}):
             for link in div.find_all("a"):
                 pdfhash = re.findall(r"[a-zA-Z0-9]{40}\.pdf", link.get("href"))[0]
                 rivisteList.append(pdfhash)
